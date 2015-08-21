@@ -109,7 +109,7 @@ public class InMemoryStorageManager implements StorageManager {
         //no-op
     }
 
-    public Long nextId(String namespace){
+    public Long nextId(String namespace) {
         Long id = this.sequenceMap.get(namespace);
         if(id == null){
             id = 0l;
