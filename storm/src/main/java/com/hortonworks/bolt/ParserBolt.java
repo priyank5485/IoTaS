@@ -12,8 +12,11 @@ import com.hortonworks.client.RestClient;
 import com.hortonworks.iotas.catalog.ParserInfo;
 import com.hortonworks.iotas.model.IotasMessage;
 import com.hortonworks.iotas.parser.Parser;
+import com.hortonworks.topology.UnparsedTupleHandler;
 import com.hortonworks.util.ReflectionHelper;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -24,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 public class ParserBolt extends BaseRichBolt {
+    private static final Logger LOG = LoggerFactory.getLogger(ParserBolt.class);
     public static final String CATALOG_ROOT_URL = "catalog.root.url";
     public static final String LOCAL_PARSER_JAR_PATH = "local.parser.jar.path";
     private OutputCollector collector;
@@ -33,6 +37,7 @@ public class ParserBolt extends BaseRichBolt {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private Fields outputFields;
     private String datafeedId;
+    private UnparsedTupleHandler unparsedTupleHandler;
 
     public ParserBolt(Fields outputFields) {
         this.outputFields = outputFields;
@@ -44,8 +49,14 @@ public class ParserBolt extends BaseRichBolt {
      *
      * @param datafeedId
      */
-    public void withDatafeedId(String datafeedId) {
+    public ParserBolt withDatafeedId(String datafeedId) {
         this.datafeedId = datafeedId;
+        return this;
+    }
+
+    public ParserBolt withUnparsedTupleHandler (UnparsedTupleHandler unparsedTupleHandler) {
+        this.unparsedTupleHandler = unparsedTupleHandler;
+        return this;
     }
 
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
@@ -58,23 +69,34 @@ public class ParserBolt extends BaseRichBolt {
         this.collector = collector;
         this.localParserJarPath = stormConf.get(LOCAL_PARSER_JAR_PATH).toString();
         this.client = new RestClient(catalogRootURL);
+        if (this.unparsedTupleHandler != null) {
+            try {
+                this.unparsedTupleHandler.prepare(stormConf);
+            } catch (Exception ex) {
+                throw new RuntimeException("Could not prepare " +
+                        "UnparsedTupleHandler used to account for bad tuples.",
+                        ex);
+            }
+        }
     }
 
     public void execute(Tuple input) {
         byte[] bytes = input.getBinaryByField("bytes");
+        byte[] failedBytes = bytes;
         Parser parser = null;
+        Values values = new Values();
         try {
             if (datafeedId == null) {
                 //If a datafeedId is not configured in parser Bolt, we assume the message has iotasMessage.
                 IotasMessage iotasMessage = objectMapper.readValue(new String(bytes, StandardCharsets.UTF_8), IotasMessage.class);
                 parser = getParser(iotasMessage);
                 bytes = iotasMessage.getData();
+
             } else {
                 parser = getParser(datafeedId);
             }
 
             Map<String, Object> parsed = parser.parse(bytes);
-            Values values = new Values();
 
             for (String str : outputFields) {
                 values.add(parsed.get(str));
@@ -82,10 +104,30 @@ public class ParserBolt extends BaseRichBolt {
             collector.emit(input, values);
             collector.ack(input);
         } catch (Exception e) {
-            collector.fail(input);
-            collector.reportError(e);
+            if (this.unparsedTupleHandler != null) {
+                try {
+                    this.unparsedTupleHandler.save(failedBytes);
+                    collector.ack(input);
+                } catch (Exception ex) {
+                    collector.fail(input);
+                    collector.reportError(e);
+                    LOG.error("Failed to parse and save the bad tuple using " +
+                            "UnparsedTupleHandler.", ex);
+                }
+            }
         }
     }
+
+    public void cleanup () {
+        if (this.unparsedTupleHandler != null) {
+            try {
+                this.unparsedTupleHandler.cleanup();
+            } catch (Exception ex) {
+                LOG.warn("Could not cleanup UnparsedTupleHandler", ex);
+            }
+        }
+    }
+
 
     private Parser loadParser(ParserInfo parserInfo) {
         InputStream parserJar = client.getParserJar(parserInfo.getParserId());

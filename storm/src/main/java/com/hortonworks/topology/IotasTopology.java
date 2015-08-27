@@ -64,10 +64,15 @@ public class IotasTopology {
                 .withRowKeyField(configuration.get(HBASE_ROW_KEY).toString())
                 .withColumnFamily(configuration.get(HBASE_COLUMN_FAMILY).toString())
                 .withColumnFields(columnFields);
-        HBaseBolt hBaseBolt = new HBaseBolt(configuration.get(HBASE_TABLE).toString(), mapper)
+        HBaseBolt hBaseBolt = new HBaseBolt(configuration.get(HBASE_TABLE)
+                .toString(), mapper)
                 .withConfigKey(HBASE_CONF);
 
+        UnparsedTupleHandler unparsedTupleHandler = new
+                HdfsUnparsedTupleHandler().withFsUrl("hdfs://localhost" +
+                ":9000").withPath("/failed-tuples").withName("data");
         ParserBolt parserBolt = new ParserBolt(outputFields);
+        parserBolt.withUnparsedTupleHandler(unparsedTupleHandler);
         if(parserDatafeedId != null && !parserDatafeedId.isEmpty()) {
             parserBolt.withDatafeedId(parserDatafeedId);
         }
