@@ -21,42 +21,53 @@ package com.hortonworks.iotas.layout.runtime.processor;
 import com.hortonworks.iotas.layout.design.component.RulesProcessor;
 import com.hortonworks.iotas.layout.design.rule.Rule;
 import com.hortonworks.iotas.layout.runtime.rule.RuleRuntime;
-import com.hortonworks.iotas.layout.runtime.rule.RuleRuntimeConstructor;
+import com.hortonworks.iotas.layout.runtime.rule.RuleRuntimeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class RulesProcessorRuntimeBuilder {
-    private static final Logger log = LoggerFactory.getLogger(RulesProcessorRuntimeBuilder.class);
+/**
+ * @param <I> Type of runtime input to this rule, for example {@code Tuple}
+ * @param <E> Type of object required to execute this rule in the underlying streaming framework e.g {@code IOutputCollector}
+ */
+public class RuleProcessorRuntimeDependenciesBuilder<I, E> {
+    protected static final Logger log = LoggerFactory.getLogger(RuleProcessorRuntimeDependenciesBuilder.class);
 
     private final RulesProcessor rulesProcessor;
-    private final RuleRuntimeConstructor ruleRuntimeConstructor;
-    private List<RuleRuntime> rulesRuntime;
+    private final RuleRuntimeBuilder<I,E> ruleRuntimeBuilder;
 
-    public RulesProcessorRuntimeBuilder(RulesProcessor rulesProcessor,
-                                        RuleRuntimeConstructor ruleRuntimeConstructor) {
+    public RuleProcessorRuntimeDependenciesBuilder(RulesProcessor rulesProcessor, RuleRuntimeBuilder<I,E> ruleRuntimeBuilder) {
         this.rulesProcessor = rulesProcessor;
-        this.ruleRuntimeConstructor = ruleRuntimeConstructor;
+        this.ruleRuntimeBuilder = ruleRuntimeBuilder;
     }
 
-    public void build() {
+    public List<RuleRuntime<I,E>> getRulesRuntime() {
         final List<Rule> rules = rulesProcessor.getRules();
-
-        rulesRuntime = new ArrayList<>();
+        final List<RuleRuntime<I, E>> rulesRuntime = new ArrayList<>();
 
         if (rules != null) {
             for (Rule rule : rules) {
-                ruleRuntimeConstructor.construct(rule);
-                RuleRuntime ruleRuntime = ruleRuntimeConstructor.getRuleRuntime(rule);
+                ruleRuntimeBuilder.buildExpression(rule);
+                ruleRuntimeBuilder.buildScriptEngine();
+                ruleRuntimeBuilder.buildScript();
+                RuleRuntime<I, E> ruleRuntime = ruleRuntimeBuilder.getRuleRuntime(rule);
                 rulesRuntime.add(ruleRuntime);
-                log.debug("Added {}", ruleRuntime);
+                log.trace("Added {}", ruleRuntime);
             }
+            log.debug("Finished building. {}", this);
         }
+        return rulesRuntime;
     }
 
-    public RuleProcessorRuntime getRuleProcessorRuntime() {
-        return  new RuleProcessorRuntime(rulesRuntime, rulesProcessor) ;
+    public RulesProcessor getRulesProcessor() {
+        return rulesProcessor;
+    }
+
+    @Override
+    public String toString() {
+        return "RuleProcessorRuntimeDependenciesBuilder{" + rulesProcessor +
+                ", "+ ruleRuntimeBuilder + '}';
     }
 }

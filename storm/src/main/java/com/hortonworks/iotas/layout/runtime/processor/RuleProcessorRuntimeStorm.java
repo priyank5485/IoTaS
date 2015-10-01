@@ -18,48 +18,24 @@
 
 package com.hortonworks.iotas.layout.runtime.processor;
 
+import backtype.storm.task.OutputCollector;
 import backtype.storm.topology.OutputFieldsDeclarer;
-import com.hortonworks.iotas.layout.design.component.RulesProcessor;
+import backtype.storm.tuple.Tuple;
 import com.hortonworks.iotas.layout.runtime.rule.RuleRuntime;
-
-import java.io.Serializable;
-import java.util.List;
+import com.hortonworks.iotas.layout.runtime.rule.RuleRuntimeStorm;
 
 
-/**
- * Object representing a design time rules processor.
- */
-public class RuleProcessorRuntime implements Serializable {
+public class RuleProcessorRuntimeStorm extends RuleProcessorRuntime<Tuple, OutputCollector> {
 
-    protected RulesProcessor rulesProcessor;
-    protected List<RuleRuntime> rulesRuntime;
-
-    RuleProcessorRuntime(List<RuleRuntime> rulesRuntime, RulesProcessor rulesProcessor) {
-        this.rulesRuntime = rulesRuntime;
-
-        this.rulesProcessor = rulesProcessor;
-    }
-
-    public List<RuleRuntime> getRulesRuntime() {
-        return rulesRuntime;
+    public RuleProcessorRuntimeStorm(RuleProcessorRuntimeDependenciesBuilder<Tuple, OutputCollector> builder) {
+        super(builder);
     }
 
     public void declareOutput(OutputFieldsDeclarer declarer) {
-        for (RuleRuntime ruleRuntime:rulesRuntime) {
-            ruleRuntime.declareOutput(declarer);
+        log.debug("Declaring output fields");
+        for (RuleRuntime<Tuple, OutputCollector> ruleRuntime : rulesRuntime) {
+            ((RuleRuntimeStorm)ruleRuntime).declareOutput(declarer);
         }
-    }
-
-    public void setRulesRuntime(List<RuleRuntime> rulesRuntime) {
-        this.rulesRuntime = rulesRuntime;
-    }
-
-    public RulesProcessor getRuleProcessor() {
-        return rulesProcessor;
-    }
-
-    public void setRuleProcessor(RulesProcessor rulesProcessor) {
-        this.rulesProcessor = rulesProcessor;
     }
 }
 

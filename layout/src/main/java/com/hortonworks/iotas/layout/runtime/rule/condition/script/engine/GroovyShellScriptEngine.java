@@ -16,22 +16,30 @@
  * limitations under the License.
  */
 
-package com.hortonworks.iotas.layout.runtime.rule;
+package com.hortonworks.iotas.layout.runtime.rule.condition.script.engine;
 
-import com.hortonworks.iotas.layout.design.rule.Rule;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.hortonworks.iotas.layout.runtime.rule.condition.expression.Expression;
+import groovy.lang.GroovyShell;
 
 import java.io.Serializable;
 
-public interface RuleRuntimeBuilder extends Serializable {
-    Logger log = LoggerFactory.getLogger(RuleRuntimeBuilder.class);
+public class GroovyShellScriptEngine implements ScriptEngine<groovy.lang.Script>, Serializable {
+    private Expression expression;
 
-    void buildExpression(Rule rule);
+    public GroovyShellScriptEngine(Expression expression) {
+        this.expression = expression;
+    }
 
-    void buildScriptEngine();
+    @Override
+    public groovy.lang.Script getEngine() {
+        GroovyShell groovyShell = new GroovyShell();
+        return groovyShell.parse(expression.getExpression());
+    }
 
-    void buildScript();
-
-    RuleRuntime getRuleRuntime(Rule rule);
+    @Override
+    public String toString() {
+        return "GroovyShellScriptEngine{" +
+                "parsed_expression=" + expression +
+                '}';
+    }
 }
