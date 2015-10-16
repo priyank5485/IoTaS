@@ -133,6 +133,7 @@ public class IotasApplication extends Application<IotasConfiguration> {
         //pass any config info that might be needed in the constructor as a map
         Map conf = new HashMap();
         conf.put("iotasStormJar", jar);
+        conf.put("catalog.root.url", configuration.getCatalogRootUrl());
         dataStreamActions.init(conf);
         return dataStreamActions;
     }

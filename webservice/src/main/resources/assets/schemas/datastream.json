@@ -4,11 +4,6 @@
   "description": "A data stream representing IoTaS topology",
   "type": "object",
   "properties": {
-      "catalogRootUrl": {
-        "description": "The URL hosting IoTaS REST api",
-        "type": "string",
-        "format": "uri"
-      },
       "dataSources": {
         "description": "List of data sources",
         "type": "array",
@@ -152,5 +147,5 @@
         }
       }
   },
-  "required": ["catalogRootUrl", "dataSources", "dataSinks", "links"]
+  "required": ["dataSources", "dataSinks", "links"]
 }

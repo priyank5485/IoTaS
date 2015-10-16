@@ -1,6 +1,5 @@
 package com.hortonworks.iotas.util;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hortonworks.iotas.catalog.DataSource;
 import com.hortonworks.iotas.catalog.DataStream;
@@ -14,7 +13,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 
 /**
  * Created by pshah on 10/5/15.
@@ -41,26 +39,26 @@ public class DataStreamLayoutValidatorTest {
     };
     // the size of the array below should be same as size of the array
     // badLayouts above
-    String[] badLayoutMessages = {String.format(DataStreamLayoutValidator
+    String[] badLayoutMessages = {String.format(DataStreamLayoutConstants
             .ERR_MSG_DATA_SOURCE_NOT_FOUND, "3"), String.format
-            (DataStreamLayoutValidator.ERR_MSG_DATA_SOURCE_INVALID_TYPE,
-                    "unknown"), String.format(DataStreamLayoutValidator
+            (DataStreamLayoutConstants.ERR_MSG_DATA_SOURCE_INVALID_TYPE,
+                    "unknown"), String.format(DataStreamLayoutConstants
             .ERR_MSG_DATA_SOURCE_MISSING_CONFIG, "KAFKA"),
-            String.format(DataStreamLayoutValidator.ERR_MSG_UINAME_DUP,
+            String.format(DataStreamLayoutConstants.ERR_MSG_UINAME_DUP,
                     "kafkaDataSource"), String.format
-            (DataStreamLayoutValidator.ERR_MSG_DATA_SINK_INVALID_TYPE,
-                    "BASE"), String.format(DataStreamLayoutValidator
+            (DataStreamLayoutConstants.ERR_MSG_DATA_SINK_INVALID_TYPE,
+                    "BASE"), String.format(DataStreamLayoutConstants
             .ERR_MSG_DATA_SINK_MISSING_CONFIG, "HBASE"), String.format
-            (DataStreamLayoutValidator.ERR_MSG_LINK_FROM,
+            (DataStreamLayoutConstants.ERR_MSG_LINK_FROM,
                     "afkaDataSource"), String.format
-            (DataStreamLayoutValidator.ERR_MSG_LINK_TO, "basesink"),
-            String.format(DataStreamLayoutValidator
+            (DataStreamLayoutConstants.ERR_MSG_LINK_TO, "basesink"),
+            String.format(DataStreamLayoutConstants
                     .ERR_MSG_DISCONNETED_DATA_SOURCE, "kafkaDataSource2")
-            , String.format(DataStreamLayoutValidator
+            , String.format(DataStreamLayoutConstants
             .ERR_MSG_DISCONNETED_DATA_SINK, "hbasesink0"), String.format
-            (DataStreamLayoutValidator.ERR_MSG_DISCONNETED_PROCESSOR_IN,
+            (DataStreamLayoutConstants.ERR_MSG_DISCONNETED_PROCESSOR_IN,
                     "disconnectedProcessor"), String.format
-            (DataStreamLayoutValidator.ERR_MSG_DISCONNETED_PROCESSOR_OUT,
+            (DataStreamLayoutConstants.ERR_MSG_DISCONNETED_PROCESSOR_OUT,
                     "dontCareRule")};
     @Before
     public void setup () {

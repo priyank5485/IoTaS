@@ -40,6 +40,9 @@ public class IotasConfiguration extends Configuration {
 
     private Boolean notificationsRestDisable;
 
+    @NotEmpty
+    private String catalogRootUrl;
+
     @NotNull
     private JarStorageConfiguration jarStorageConfiguration;
 
@@ -75,6 +78,14 @@ public class IotasConfiguration extends Configuration {
 
     public void setIotasStormJar (String iotasStormJar) {
         this.iotasStormJar = iotasStormJar;
+    }
+
+    public String getCatalogRootUrl () {
+        return catalogRootUrl;
+    }
+
+    public void setCatalogRootUrl (String catalogRootUrl) {
+        this.catalogRootUrl = catalogRootUrl;
     }
 
     @JsonProperty("jarStorageConfiguration")
