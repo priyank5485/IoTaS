@@ -36,6 +36,9 @@ public class IotasConfiguration extends Configuration {
     private String dataStreamActionsImpl;
 
     @NotEmpty
+    private String dataStreamConfigImpl;
+
+    @NotEmpty
     private String iotasStormJar;
 
     private Boolean notificationsRestDisable;
@@ -70,6 +73,14 @@ public class IotasConfiguration extends Configuration {
 
     public void setDataStreamActionsImpl (String dataStreamActionsImpl) {
         this.dataStreamActionsImpl = dataStreamActionsImpl;
+    }
+
+    public String getDataStreamConfigImpl () {
+        return dataStreamConfigImpl;
+    }
+
+    public void setDataStreamConfigImpl (String dataStreamConfigImpl) {
+        this.dataStreamConfigImpl = dataStreamConfigImpl;
     }
 
     public String getIotasStormJar () {

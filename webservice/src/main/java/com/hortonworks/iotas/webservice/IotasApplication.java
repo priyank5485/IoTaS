@@ -23,6 +23,7 @@ import com.hortonworks.iotas.cache.Cache;
 import com.hortonworks.iotas.cache.impl.GuavaCache;
 import com.hortonworks.iotas.cache.writer.StorageWriteThrough;
 import com.hortonworks.iotas.cache.writer.StorageWriter;
+import com.hortonworks.iotas.datastream.DataStreamConfig;
 import com.hortonworks.iotas.notification.service.NotificationServiceImpl;
 import com.hortonworks.iotas.service.CatalogService;
 import com.hortonworks.iotas.storage.CacheBackedStorageManager;
@@ -30,16 +31,9 @@ import com.hortonworks.iotas.storage.Storable;
 import com.hortonworks.iotas.storage.StorableKey;
 import com.hortonworks.iotas.storage.StorageManager;
 import com.hortonworks.iotas.storage.impl.memory.InMemoryStorageManager;
-import com.hortonworks.iotas.util.DataStreamActions;
+import com.hortonworks.iotas.datastream.DataStreamActions;
 import com.hortonworks.iotas.util.ReflectionHelper;
-import com.hortonworks.iotas.webservice.catalog.ClusterCatalogResource;
-import com.hortonworks.iotas.webservice.catalog.ComponentCatalogResource;
-import com.hortonworks.iotas.webservice.catalog.DataSourceCatalogResource;
-import com.hortonworks.iotas.webservice.catalog.DataSourceFacade;
-import com.hortonworks.iotas.webservice.catalog.DataSourceWithDataFeedCatalogResource;
-import com.hortonworks.iotas.webservice.catalog.FeedCatalogResource;
-import com.hortonworks.iotas.webservice.catalog.NotifierInfoCatalogResource;
-import com.hortonworks.iotas.webservice.catalog.ParserInfoCatalogResource;
+import com.hortonworks.iotas.webservice.catalog.*;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.setup.Bootstrap;
@@ -138,10 +132,27 @@ public class IotasApplication extends Application<IotasConfiguration> {
         return dataStreamActions;
     }
 
+    private DataStreamConfig getDataStreamConfigImpl (IotasConfiguration
+                                                              configuration) {
+        String className = configuration.getDataStreamConfigImpl();
+        DataStreamConfig dataStreamConfig;
+        try {
+            dataStreamConfig = ReflectionHelper.newInstance(className);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+        dataStreamConfig.initialize();
+        return dataStreamConfig;
+    }
+
     private void registerResources(IotasConfiguration iotasConfiguration, Environment environment, StorageManager manager) {
+        StorageManager storageManager = getCacheBackedDao();
+        DataStreamActions dataStreamActions = getDataStreamActionsImpl
+                (iotasConfiguration);
+        DataStreamConfig dataStreamConfig = getDataStreamConfigImpl
+                (iotasConfiguration);
         final CatalogService catalogService = new CatalogService
-                (getCacheBackedDao(), getDataStreamActionsImpl
-                        (iotasConfiguration));
+                (storageManager, dataStreamActions, dataStreamConfig);
         final FeedCatalogResource feedResource = new FeedCatalogResource(catalogService);
         final ParserInfoCatalogResource parserResource = new ParserInfoCatalogResource(catalogService, iotasConfiguration);
         final DataSourceCatalogResource dataSourceResource = new DataSourceCatalogResource(catalogService);

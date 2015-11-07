@@ -1,4 +1,4 @@
-package com.hortonworks.iotas.util;
+package com.hortonworks.iotas.datastream;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -22,12 +22,47 @@ public class DataStreamLayoutConstants {
     public final static String JSON_KEY_TABLE = "table";
     public final static String JSON_KEY_COLUMN_FAMILY = "columnFamily";
     public final static String JSON_KEY_ROW_KEY = "rowKey";
+    public final static String JSON_KEY_MAPPER_IMPL =
+            "hBaseMapperImplClassName";
     public final static String JSON_KEY_FS_URL = "fsUrl";
     public final static String JSON_KEY_PATH = "path";
     public final static String JSON_KEY_NAME = "name";
+    public final static String JSON_KEY_FILE_NAME_FORMAT_IMPL =
+            "filenameFormatImpl";
+    public final static String JSON_KEY_RECORD_FORMAT_IMPL = "recordFormatImpl";
+    public final static String JSON_KEY_SYNC_POLICY_IMPL = "syncPolicyImpl";
+    public final static String JSON_KEY_COUNT_POLICY_VALUE = "countPolicyValue";
+    public final static String JSON_KEY_ROTATION_POLICY_IMPL =
+            "rotationPolicyImpl";
+    public final static String JSON_KEY_ROTATION_INTERVAL = "rotationInterval";
+    public final static String JSON_KEY_ROTATION_INTERVAL_UNIT =
+            "rotationIntervalUnit";
+    public final static String JSON_KEY_ROTATION_ACTIONS = "rotationActions";
     public final static String JSON_KEY_LINKS = "links";
     public final static String JSON_KEY_FROM = "from";
     public final static String JSON_KEY_TO = "to";
+    public final static String JSON_KEY_CONFIG_KEY = "configKey";
+    public final static String JSON_KEY_BROKER_HOSTS_CLASS = "storm.kafka" +
+            ".ZkHosts";
+    public final static String JSON_KEY_ZK_PATH = "zkPath";
+    public final static String JSON_KEY_ZK_ROOT = "zkRoot";
+    public final static String JSON_KEY_SPOUT_ID = "kafkaSpoutId";
+    public final static String JSON_KEY_PARSED_TUPLES_STREAM =
+            "parsedTuplesStream";
+    public final static String JSON_KEY_FAILED_TUPLES_STREAM =
+            "failedTuplesStream";
+    public final static String JSON_KEY_PARSER_JAR_PATH =
+            "parserJarPath";
+    public final static String JSON_KEY_PARSER_ID =
+            "parserId";
+    public final static String JSON_KEY_DATA_SOURCE_ID =
+            "dataSourceId";
+    public final static String JSON_KEY_STREAM_ID =
+            "streamId";
+    public final static String JSON_KEY_GROUPING = "grouping";
+    public final static String JSON_KEY_GROUPING_FIELDS = "groupingFields";
+    public final static String JSON_KEY_CUSTOM_GROUPING_IMPL = "customGroupingImpl";
+    public final static String JSON_KEY_PARALLELISM = "parallelism";
 
     // validation error messages
     public final static String ERR_MSG_UINAME_DUP = "Uiname %s is already " +

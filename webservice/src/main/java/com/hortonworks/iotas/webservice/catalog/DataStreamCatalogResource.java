@@ -1,25 +1,20 @@
-package com.hortonworks.iotas.webservice;
+package com.hortonworks.iotas.webservice.catalog;
 
 import com.codahale.metrics.annotation.Timed;
-import com.hortonworks.iotas.catalog.DataSource;
 import com.hortonworks.iotas.catalog.DataStream;
+import com.hortonworks.iotas.datastream.DataStreamComponent;
+import com.hortonworks.iotas.datastream.DataStreamComponentType;
 import com.hortonworks.iotas.service.CatalogService;
-import com.hortonworks.iotas.util.DataStreamLayoutValidator;
 import com.hortonworks.iotas.util.exception.BadDataStreamLayoutException;
 import com.hortonworks.iotas.webservice.util.WSUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import javax.xml.crypto.Data;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 
 import static com.hortonworks.iotas.catalog.CatalogResponse.ResponseMessage.*;
 import static javax.ws.rs.core.Response.Status.*;
@@ -175,5 +170,35 @@ public class DataStreamCatalogResource {
         return WSUtils.respond(NOT_FOUND, ENTITY_NOT_FOUND, dataStreamId.toString());
     }
 
+    @GET
+    @Path("/datastreams/config/components")
+    @Timed
+    public Response listDataStreamComponents () {
+        Collection<DataStreamComponent> dataStreamComponents = catalogService
+                .listDataStreamComponents();
+        return WSUtils.respond(OK, SUCCESS, dataStreamComponents);
+    }
+
+    @GET
+    @Path("/datastreams/config/components/{component}")
+    @Timed
+    public Response listDataStreamComponentTypes (@PathParam("component")
+                                                  DataStreamComponent component) {
+        Collection<DataStreamComponentType> dataStreamComponents = catalogService
+                .listDataStreamComponentTypes(component);
+        return WSUtils.respond(OK, SUCCESS, dataStreamComponents);
+    }
+
+    @GET
+    @Path("/datastreams/config/components/{component}/{componentType}")
+    @Timed
+    public Response getDataStreamComponentConfig (@PathParam("component")
+                                             DataStreamComponent component,
+                                         @PathParam("componentType")
+                                         DataStreamComponentType type) {
+        Collection<Map<String, Object>> fieldInfos = catalogService
+                .getDataStreamComponentConfig(component, type);
+        return WSUtils.respond(OK, SUCCESS, fieldInfos);
+    }
 }
 

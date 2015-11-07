@@ -1,8 +1,10 @@
-package com.hortonworks.iotas.util;
+package com.hortonworks.iotas.datastream;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hortonworks.iotas.catalog.DataSource;
 import com.hortonworks.iotas.catalog.DataStream;
+import com.hortonworks.iotas.datastream.DataStreamLayoutConstants;
+import com.hortonworks.iotas.datastream.DataStreamLayoutValidator;
 import com.hortonworks.iotas.storage.StorageManager;
 import com.hortonworks.iotas.storage.impl.memory.InMemoryStorageManager;
 import com.hortonworks.iotas.util.exception.BadDataStreamLayoutException;

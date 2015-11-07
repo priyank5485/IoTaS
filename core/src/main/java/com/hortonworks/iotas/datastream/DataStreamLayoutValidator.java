@@ -1,4 +1,4 @@
-package com.hortonworks.iotas.util;
+package com.hortonworks.iotas.datastream;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hortonworks.iotas.catalog.DataSource;

@@ -8,22 +8,19 @@ import com.hortonworks.iotas.catalog.DataStream;
 import com.hortonworks.iotas.catalog.Device;
 import com.hortonworks.iotas.catalog.NotifierInfo;
 import com.hortonworks.iotas.catalog.ParserInfo;
+import com.hortonworks.iotas.datastream.*;
 import com.hortonworks.iotas.storage.DataSourceSubType;
 import com.hortonworks.iotas.storage.StorableKey;
 import com.hortonworks.iotas.storage.StorageManager;
 import com.hortonworks.iotas.storage.exception.StorageException;
 import com.hortonworks.iotas.util.CoreUtils;
-import com.hortonworks.iotas.util.DataStreamActions;
-import com.hortonworks.iotas.util.DataStreamLayoutValidator;
 import com.hortonworks.iotas.util.JsonSchemaValidator;
 import com.hortonworks.iotas.util.exception.BadDataStreamLayoutException;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * A service layer where we could put our business logic.
@@ -45,6 +42,7 @@ public class CatalogService {
 
     private StorageManager dao;
     private DataStreamActions dataStreamActions;
+    private DataStreamConfig dataStreamConfig;
 
     public static class QueryParam {
         public final String name;
@@ -91,9 +89,11 @@ public class CatalogService {
         }
     }
 
-    public CatalogService(StorageManager dao, DataStreamActions dataStreamActions) {
+    public CatalogService(StorageManager dao, DataStreamActions
+            dataStreamActions, DataStreamConfig dataStreamConfig) {
         this.dao = dao;
         this.dataStreamActions = dataStreamActions;
+        this.dataStreamConfig = dataStreamConfig;
     }
 
     private String getNamespaceForDataSourceType(DataSource.Type dataSourceType) {
@@ -454,6 +454,30 @@ public class CatalogService {
     public void killDataStream(DataStream dataStream) throws Exception {
         this.dataStreamActions.kill(dataStream);
         return;
+    }
+
+    public Collection<DataStreamComponent> listDataStreamComponents () {
+        return this.dataStreamConfig.getSupportedComponents();
+    }
+
+    public Collection<DataStreamComponentType> listDataStreamComponentTypes
+            (DataStreamComponent component) {
+        return this.dataStreamConfig.getSupportedTypes(component);
+    }
+
+    public List<Map<String, Object>> getDataStreamComponentConfig
+            (DataStreamComponent component, DataStreamComponentType type) {
+        List<DataStreamFieldConfig> fieldConfigs = this.dataStreamConfig
+                .getConfigFields(component, type);
+        List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+        for (DataStreamFieldConfig fieldConfig: fieldConfigs) {
+            Map<String, Object> fieldInfo = new HashMap<String, Object>();
+            fieldInfo.put("name", fieldConfig.getName());
+            fieldInfo.put("isOptional", fieldConfig.isOptional());
+            fieldInfo.put("defaultValue", fieldConfig.getDefaultValue());
+            result.add(fieldInfo);
+        }
+        return result;
     }
 
 }
