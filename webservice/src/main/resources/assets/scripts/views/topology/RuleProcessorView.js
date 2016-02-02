@@ -4,8 +4,9 @@ define(['require',
   'utils/Globals',
   'modules/Modal',
   'models/VParser',
+  'models/VDatasource',
   'hbs!tmpl/topology/ruleProcessorView'
-], function(require, localization, Utils, Globals, Modal, VParser, tmpl) {
+], function(require, localization, Utils, Globals, Modal, VParser, VDatasource, tmpl) {
   'use strict';
 
   var RuleProcessorView = Marionette.LayoutView.extend({
@@ -30,9 +31,14 @@ define(['require',
     getFeedSchema:function (options){
       var self = this;
       this.parserModel = new VParser();
+      
+      var dsModel = new VDatasource();
+      dsModel.set('dataSourceId', this.model.get('dataSourceId'));
+      dsModel.set('id', this.model.get('dataSourceId'));
+      dsModel.fetch({async: false});
 
       this.parserModel.getSchema({
-        parserId: this.model.get('parserId'),
+        parserId: dsModel.get('entity').parserId,
         async: false,
         success: function(model, response, options){
           self.parserModel.schema = model.entity.fields;
@@ -141,13 +147,14 @@ define(['require',
         this.evClose();
       } else {
         Utils.notifyError('Some fields are empty.');
+        return false;
       }
     },
     validateAll: function(){
       var self = this;
       var flag = true;
       _.each(this.formulaModelArr, function(model){
-        if(model.get('field1') && model.get('comp') && model.get('field2')){
+        if(flag && model.get('field1') && model.get('comp') && model.get('field2')){
           if(!model.get('firstModel')){
             if(!model.get('logical')){
               flag = false;
