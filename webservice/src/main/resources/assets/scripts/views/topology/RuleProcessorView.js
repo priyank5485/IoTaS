@@ -110,10 +110,11 @@ define(['require',
           condition: {
             conditionElements: []
           },
-          action: {
-            components: (this.model.has('newConfig')) ? this.model.get('newConfig').rulesProcessorConfig.rules[0].action.components : [],
-            declaredOutput: this.parserModel.schema
-          },
+          actions: (this.model.has('newConfig') ? this.model.get('newConfig').rulesProcessorConfig.rules[0].actions : []),
+          // action: {
+          //   components: (this.model.has('newConfig')) ? this.model.get('newConfig').rulesProcessorConfig.rules[0].action.components : [],
+          //   declaredOutput: this.parserModel.schema
+          // },
           description: "Auto-Generated for "+this.model.get('uiname')
         };
         _.each(this.formulaModelArr, function(model){

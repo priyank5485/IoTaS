@@ -575,18 +575,32 @@ define(['require',
 
           if(obj[0].source.currentType === 'RULE' && !validationFlag){
             var rulesDataConfig = _.isUndefined(sourceData.newConfig) ? sourceData.rulesProcessorConfig : sourceData.newConfig.rulesProcessorConfig;
-            if(rulesDataConfig.rules[0].action.components.length > 0){
-              var arr = rulesDataConfig.rules[0].action.components.filter(function(object){
+            if(rulesDataConfig.rules[0].actions.length > 0){
+              var arr = rulesDataConfig.rules[0].actions.filter(function(object){
                 return (object.name !== model.get('type'));
               });
-              rulesDataConfig.rules[0].action.components = arr;
+              rulesDataConfig.rules[0].actions = arr;
             }
-            rulesDataConfig.rules[0].action.components.push({
-              name: model.get('type'),
-              id: new Date().getTime(),
-              description: 'Auto-Generated For '+model.get('uiname'),
-              declaredInput: rulesDataConfig.declaredInput
-            });
+            
+            var actionObj = {
+              name: model.get('uiname')
+            };
+
+            var outputFieldObj = {};
+            if(model.get('type') !== 'NOTIFICATION'){
+              // _.each(rulesDataConfig.declaredInput, function(o){
+              //   outputFieldObj[o.name] = null;
+              // });
+              // actionObj.outputFieldsAndDefaults = outputFieldObj;
+              // actionObj.includeMeta = false;
+              // actionObj.notifierName = null;
+            } else {
+              actionObj.outputFieldsAndDefaults = model.get('fieldValues');
+              actionObj.includeMeta = true;
+              actionObj.notifierName = model.get('notifierName');
+            }
+            
+            rulesDataConfig.rules[0].actions.push(actionObj);
           }
           return true;
         }
@@ -783,9 +797,9 @@ define(['require',
             }
             if(sourceObj.currentType === 'RULE'){
               if(sourceObj.newConfig){
-                tempObj.config.streamId = sourceObj.newConfig.rulesProcessorConfig.name+'.'+sourceObj.newConfig.rulesProcessorConfig.rules[0].name+'.'+sourceObj.newConfig.rulesProcessorConfig.rules[0].id;
+                tempObj.config.streamId = sourceObj.newConfig.rulesProcessorConfig.name+'.'+sourceObj.newConfig.rulesProcessorConfig.rules[0].name+'.'+sourceObj.newConfig.rulesProcessorConfig.rules[0].id+'.'+targetObj.uiname;
               } else {
-                tempObj.config.streamId = sourceObj.rulesProcessorConfig.name+'.'+sourceObj.rulesProcessorConfig.rules[0].name+'.'+sourceObj.rulesProcessorConfig.rules[0].id;
+                tempObj.config.streamId = sourceObj.rulesProcessorConfig.name+'.'+sourceObj.rulesProcessorConfig.rules[0].name+'.'+sourceObj.rulesProcessorConfig.rules[0].id+'.'+targetObj.uiname;
               }
             }
             tempData.links.push(tempObj);
@@ -923,8 +937,10 @@ define(['require',
       this.stopListening(this.vent, 'click:topologyNode');
       this.stopListening(this.vent, 'topologyEditor:SaveConfig');
       this.stopListening(this.vent, 'topologyLink');
-      this.topologyGraph.vent.stopListening(this.vent, 'change:editor-submenu');
-      this.topologyGraph.vent.stopListening(this.vent, 'TopologyEditorMaster:Zoom');
+      if(this.TopologyGraph){
+        this.topologyGraph.vent.stopListening(this.vent, 'change:editor-submenu');
+        this.topologyGraph.vent.stopListening(this.vent, 'TopologyEditorMaster:Zoom');
+      }
     }
 
   });
