@@ -44,7 +44,7 @@
       {
         "uiName": "Key Serializer",
         "fieldName": "keySerializer",
-        "isOptional": false,
+        "isOptional": true,
         "tooltip": "Type of key serializer to use",
         "type": "enumstring",
         "options": ["String", "Integer", "Long", "ByteArray"]
@@ -52,8 +52,8 @@
       {
         "uiName": "Key Field",
         "fieldName": "keyField",
-        "isOptional": false,
-        "tooltip": "Name of the key field",
+        "isOptional": true,
+        "tooltip": "Name of the key field. If non empty then type of key field must work with Key Serializer chosen.",
         "type": "enumstring",
         "options": [],
         "hint": "inputFields"
